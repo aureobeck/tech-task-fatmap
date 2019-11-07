@@ -5,7 +5,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider,
   Container,
   Typography,
   Toolbar,
@@ -23,6 +22,7 @@ import GoogleMapReact from 'google-map-react';
 import { NAME, SKI_DIFFICULTY } from './constants/sorting-types.js';
 import getSortedArray from './util/getSortedArray.js';
 import formatGoogleMapsLineArray from './util/formatGoogleMapsLineArray.js';
+import { GOOGLE_MAPS_API } from './constants/api.js';
 
 export default class OffPistes extends Component {
 
@@ -51,7 +51,7 @@ export default class OffPistes extends Component {
 
     return (
       <div>
-        <ListItem button alignItems="flex-start" onClick={() => this.setState({isPisteLineDialogOpen: true, currentPisteGeoData: geo_data})}>
+        <ListItem key={name} button alignItems="flex-start" onClick={() => this.setState({ isPisteLineDialogOpen: true, currentPisteGeoData: geo_data })}>
           <ListItemText
             primary={name}
             secondary={<React.Fragment>
@@ -59,10 +59,10 @@ export default class OffPistes extends Component {
                 {short_description}
               </Typography>
               <Typography>
-                {`Ski Difficulty: ${ski_difficulty}`}
+                {`Ski difficulty: ${ski_difficulty}`}
               </Typography>
             </React.Fragment>} />
-        </ListItem>   
+        </ListItem>
       </div>
     )
   }
@@ -83,15 +83,15 @@ export default class OffPistes extends Component {
   }
 
   handleClosePisteLineDialog() {
-    this.setState({ isPisteLineDialogOpen: false})
+    this.setState({ isPisteLineDialogOpen: false })
   }
 
   handleGoogleMapApi(google) {
     const geoData = this.state.currentPisteGeoData;
     if (!geoData) return;
-    const {coordinates} = geoData;
+    const { coordinates } = geoData;
     const formatedLineArray = formatGoogleMapsLineArray(coordinates);
-  
+
     formatedLineArray.forEach(formatedLine => {
       const line = new google.maps.Polyline({
         path: formatedLine,
@@ -100,7 +100,7 @@ export default class OffPistes extends Component {
         strokeOpacity: 1,
         strokeWeight: 5
       });
-  
+
       line.setMap(google.map);
     })
   }
@@ -156,22 +156,23 @@ export default class OffPistes extends Component {
             {'Piste Line'}
           </DialogTitle>
           <DialogContent>
-            {currentPisteGeoData ? <div style={{ height: 300, width: 400 }}>
-              <GoogleMapReact
-                bootstrapURLKeys={{ key: 'AIzaSyCqTLNhspQAyiTuwg-eiDIr8eyUx9Omdv8' }}
-                yesIWantToUseGoogleMapApiInternals
-                onGoogleApiLoaded={google => this.handleGoogleMapApi(google)}
-                defaultCenter={this.getFirstPositionInLine()}
-                defaultZoom={13}
-              >
-              </GoogleMapReact>
-            </div> : <Typography>
+            {currentPisteGeoData ?
+              <div style={{ height: 300, width: 400 }}>
+                <GoogleMapReact
+                  bootstrapURLKeys={{ key: GOOGLE_MAPS_API }}
+                  yesIWantToUseGoogleMapApiInternals
+                  onGoogleApiLoaded={google => this.handleGoogleMapApi(google)}
+                  defaultCenter={this.getFirstPositionInLine()}
+                  defaultZoom={13}
+                >
+                </GoogleMapReact>
+              </div> : <Typography>
                 {'No lines available'}
               </Typography>}
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={this.handleClosePisteLineDialog} color="primary">
-              Close
+              {'Close'}
           </Button>
           </DialogActions>
         </Dialog>
