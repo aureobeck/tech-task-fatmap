@@ -1,4 +1,4 @@
-# Where in the world?
+# Off-piste Lines
 
 Amazing app that shows interesting information about off-piste lines.
 
