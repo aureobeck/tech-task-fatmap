@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.3.3",
     "fs": "^0.0.1-security",
+    "google-map-react": "^1.1.5",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1"

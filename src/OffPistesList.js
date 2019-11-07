@@ -12,10 +12,17 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  FormLabel
+  FormLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from '@material-ui/core';
+import GoogleMapReact from 'google-map-react';
 import { NAME, SKI_DIFFICULTY } from './constants/sorting-types.js';
 import getSortedArray from './util/getSortedArray.js';
+import formatGoogleMapsLineArray from './util/formatGoogleMapsLineArray.js';
 
 export default class OffPistes extends Component {
 
@@ -25,10 +32,13 @@ export default class OffPistes extends Component {
     this.state = {
       offPistes: [],
       sortingType: null,
+      isPisteLineDialogOpen: false,
+      currentPisteGeoData: null,
     }
 
     this.updateOffPistes();
 
+    this.handleClosePisteLineDialog = this.handleClosePisteLineDialog.bind(this);
   }
 
   async updateOffPistes() {
@@ -37,11 +47,11 @@ export default class OffPistes extends Component {
   }
 
   renderOffPisteItem(offPiste) {
-    const { name, short_description, ski_difficulty } = offPiste;
+    const { name, short_description, ski_difficulty, geo_data } = offPiste;
 
     return (
       <div>
-        <ListItem button alignItems="flex-start">
+        <ListItem button alignItems="flex-start" onClick={() => this.setState({isPisteLineDialogOpen: true, currentPisteGeoData: geo_data})}>
           <ListItemText
             primary={name}
             secondary={<React.Fragment>
@@ -52,8 +62,7 @@ export default class OffPistes extends Component {
                 {`Ski Difficulty: ${ski_difficulty}`}
               </Typography>
             </React.Fragment>} />
-        </ListItem>
-        <Divider />
+        </ListItem>   
       </div>
     )
   }
@@ -73,9 +82,42 @@ export default class OffPistes extends Component {
     this.setState({ sortingType: newSortingType })
   }
 
+  handleClosePisteLineDialog() {
+    this.setState({ isPisteLineDialogOpen: false})
+  }
+
+  handleGoogleMapApi(google) {
+    const geoData = this.state.currentPisteGeoData;
+    if (!geoData) return;
+    const {coordinates} = geoData;
+    const formatedLineArray = formatGoogleMapsLineArray(coordinates);
+  
+    formatedLineArray.forEach(formatedLine => {
+      const line = new google.maps.Polyline({
+        path: formatedLine,
+        geodesic: true,
+        strokeColor: '#33BD4E',
+        strokeOpacity: 1,
+        strokeWeight: 5
+      });
+  
+      line.setMap(google.map);
+    })
+  }
+
+  getFirstPositionInLine() {
+    const { currentPisteGeoData } = this.state;
+
+    if (!currentPisteGeoData || !currentPisteGeoData.coordinates) return;
+    return {
+      lat: currentPisteGeoData.coordinates[0][0][1],
+      lng: currentPisteGeoData.coordinates[0][0][0],
+    };
+  }
+
   render() {
     const { classes } = this.props;
-    const { offPistes, sortingType } = this.state;
+    const { offPistes, sortingType, isPisteLineDialogOpen } = this.state;
 
     return (
       <React.Fragment>
@@ -109,6 +151,28 @@ export default class OffPistes extends Component {
             </List>
           </Container>
         </main>
+        <Dialog onClose={this.handleClosePisteLineDialog} aria-labelledby="customized-dialog-title" open={isPisteLineDialogOpen}>
+          <DialogTitle id="customized-dialog-title">
+            {'Piste Line'}
+          </DialogTitle>
+          <DialogContent>
+            <div style={{ height: 300, width: 400 }}>
+              <GoogleMapReact
+                bootstrapURLKeys={{ key: 'AIzaSyCqTLNhspQAyiTuwg-eiDIr8eyUx9Omdv8' }}
+                yesIWantToUseGoogleMapApiInternals
+                onGoogleApiLoaded={google => this.handleGoogleMapApi(google)}
+                defaultCenter={this.getFirstPositionInLine()}
+                defaultZoom={13}
+              >
+              </GoogleMapReact>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={this.handleClosePisteLineDialog} color="primary">
+              Close
+          </Button>
+          </DialogActions>
+        </Dialog>
       </React.Fragment>
     )
   }
