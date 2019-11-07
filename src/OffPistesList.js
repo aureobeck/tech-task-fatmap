@@ -36,12 +36,12 @@ export default class OffPistes extends Component {
       currentPisteGeoData: null,
     }
 
-    this.updateOffPistes();
+    this.parseAndRefreshOffPistes();
 
     this.handleClosePisteLineDialog = this.handleClosePisteLineDialog.bind(this);
   }
 
-  async updateOffPistes() {
+  async parseAndRefreshOffPistes() {
     const offPistes = await require('./assets/off-pistes.json');
     this.setState({ offPistes });
   }
@@ -50,8 +50,8 @@ export default class OffPistes extends Component {
     const { name, short_description, ski_difficulty, geo_data } = offPiste;
 
     return (
-      <div>
-        <ListItem key={name} button alignItems="flex-start" onClick={() => this.setState({ isPisteLineDialogOpen: true, currentPisteGeoData: geo_data })}>
+      <div key={name}>
+        <ListItem k button alignItems="flex-start" onClick={() => this.setState({ isPisteLineDialogOpen: true, currentPisteGeoData: geo_data })}>
           <ListItemText
             primary={name}
             secondary={<React.Fragment>
@@ -70,26 +70,21 @@ export default class OffPistes extends Component {
   onSortingChecked(type) {
     const { sortingType, offPistes } = this.state;
 
-    let newSortingType;
     if (sortingType !== type) {
-      newSortingType = type;
-
       const sortedOffPistes = getSortedArray(offPistes, type, true);
-      this.setState({ sortingType: newSortingType, offPistes: sortedOffPistes })
-      return;
+      this.setState({ sortingType: type, offPistes: sortedOffPistes })
     }
-
-    this.setState({ sortingType: newSortingType })
   }
 
   handleClosePisteLineDialog() {
-    this.setState({ isPisteLineDialogOpen: false })
+    this.setState({ isPisteLineDialogOpen: false });
   }
 
   handleGoogleMapApi(google) {
-    const geoData = this.state.currentPisteGeoData;
-    if (!geoData) return;
-    const { coordinates } = geoData;
+    const { currentPisteGeoData } = this.state;
+
+    if (!currentPisteGeoData) return;
+    const { coordinates } = currentPisteGeoData;
     const formatedLineArray = formatGoogleMapsLineArray(coordinates);
 
     formatedLineArray.forEach(formatedLine => {
