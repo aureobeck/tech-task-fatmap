@@ -2,6 +2,22 @@
 
 Amazing app that shows interesting information about off-piste lines.
 
-<!-- TODO: Finish README -->
+## Installation
 
+```bash
+npm install
+```
+or
+```bash
+yarn
+```
 
+## Running
+
+```bash
+npm run start
+```
+or
+```bash
+yarn start
+```
