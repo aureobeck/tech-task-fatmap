@@ -117,7 +117,7 @@ export default class OffPistes extends Component {
 
   render() {
     const { classes } = this.props;
-    const { offPistes, sortingType, isPisteLineDialogOpen } = this.state;
+    const { offPistes, sortingType, isPisteLineDialogOpen, currentPisteGeoData } = this.state;
 
     return (
       <React.Fragment>
@@ -156,7 +156,7 @@ export default class OffPistes extends Component {
             {'Piste Line'}
           </DialogTitle>
           <DialogContent>
-            <div style={{ height: 300, width: 400 }}>
+            {currentPisteGeoData ? <div style={{ height: 300, width: 400 }}>
               <GoogleMapReact
                 bootstrapURLKeys={{ key: 'AIzaSyCqTLNhspQAyiTuwg-eiDIr8eyUx9Omdv8' }}
                 yesIWantToUseGoogleMapApiInternals
@@ -165,7 +165,9 @@ export default class OffPistes extends Component {
                 defaultZoom={13}
               >
               </GoogleMapReact>
-            </div>
+            </div> : <Typography>
+                {'No lines available'}
+              </Typography>}
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={this.handleClosePisteLineDialog} color="primary">
